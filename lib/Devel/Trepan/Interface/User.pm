@@ -20,7 +20,8 @@ use Devel::Trepan::Interface qw(YES NO @YN);
 use constant DEFAULT_USER_OPTS => {
 
     readline   =>                       # Try to use GNU Readline?
-	$Devel::Trepan::IO::Input::HAVE_GNU_READLINE, 
+    # A promise.
+	sub { return Devel::Trepan::IO::Input::GLOBAL_have_gnu_readline(); },
     
     # The below are only used if we want and have readline support.
     # See method Trepan::GNU_readline? below.
@@ -162,10 +163,23 @@ sub read_command($;$) {
     $self->readline($prompt);
 }
 
+sub _self_does_have_gnu_readline {
+    my ($self) = @_;
+
+    my $rl = $self->{opts}{readline};
+
+    if (ref($rl) eq "CODE")
+    {
+        $rl = $rl->();
+    }
+
+    return $rl;
+}
+
 sub readline($;$) {
     my($self, $prompt)  = @_;
     $self->{output}->flush;
-    if (defined $self->{opts}{readline}) {
+    if ($self->_self_does_have_gnu_readline()) {
 	$self->{input}->readline($prompt);
     } else { 
 	$self->{output}->write($prompt) if defined($prompt) && $prompt;

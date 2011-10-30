@@ -63,7 +63,7 @@ sub process_options($)
 	 'c|command=s@' => \$opts->{cmdfiles},
 	 'cd:s'         => \$opts->{initial_dir},
 	 'nx'           => \$opts->{nx},
-	 'readline'     => \$opts->{readline},
+	 'readline!'     => \$opts->{readline},
 	 'x|trace'      => \$opts->{traceprint},
 	 'version'      => \$show_version,
 	);
@@ -75,6 +75,7 @@ sub process_options($)
     show_version() if $show_version;
     chdir $opts->{initial_dir} || die "Can't chdir to $opts->{initial_dir}" if
 	defined($opts->{initial_dir});
+
     $opts;
 }
 

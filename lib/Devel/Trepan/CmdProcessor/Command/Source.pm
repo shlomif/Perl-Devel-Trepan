@@ -83,6 +83,7 @@ sub parse_options($$$)
 sub run($$)
 {
     my ($self, $args) = @_;
+
     my @args = @$args;
     @args = splice @args, 1, scalar(@args) - 2;
     my $options = $self->parse_options(\@args);

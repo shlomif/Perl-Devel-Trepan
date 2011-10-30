@@ -55,7 +55,7 @@ sub new($;$$$) {
     if (defined $interfaces) {
 	$intf = $interfaces->[0];
     } else {
-	$intf = Devel::Trepan::Interface::User->new;
+	$intf = Devel::Trepan::Interface::User->new(undef, undef, {readline => 0,});
 	$interfaces = [$intf];
     }
     my $self = Devel::Trepan::CmdProcessor::Virtual::new($class, $interfaces, $settings);

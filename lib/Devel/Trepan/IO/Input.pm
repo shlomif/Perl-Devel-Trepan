@@ -11,24 +11,37 @@ use Term::ReadLine;
 
 package Devel::Trepan::IO::Input;
 
+# TODO (by Shlomif): What is this "use lib" statement good for?
 use lib '../../..';
 use Devel::Trepan::Util qw(hash_merge);
 use Devel::Trepan::IO;
 
-use vars qw(@EXPORT @ISA $HAVE_GNU_READLINE);
+use vars qw(@EXPORT @ISA);
 @ISA = qw(Devel::Trepan::IO::InputBase Exporter);
-@EXPORT = qw($HAVE_GNU_READLINE);
 
 BEGIN {
     $ENV{'PERL_RL'} ||= 'Gnu';
-    my $term = Term::ReadLine->new('testing');
-    if ($term->ReadLine eq 'Term::ReadLine::Gnu') {
-      $HAVE_GNU_READLINE=1;
-    } else {
-      $HAVE_GNU_READLINE=0;
+};
+
+{
+    my $have_gnu_verdict;
+
+    sub GLOBAL_have_gnu_readline
+    {
+        if (!defined($have_gnu_verdict))
+        {
+            my $term = Term::ReadLine->new('testing');
+            if ($term->ReadLine eq 'Term::ReadLine::Gnu') {
+                $have_gnu_verdict = 1;
+            } else {
+                $have_gnu_verdict = 0;
+            }
+            # Don't know how to close $term
+            $term = undef;
+        }
+
+        return $have_gnu_verdict;
     }
-    # Don't know how to close $term
-    $term = undef;
 }
 
 my $readline_finalized = 0;
@@ -36,7 +49,8 @@ sub new($;$$) {
     my ($class, $inp, $opts) = @_;
     $inp ||= *STDIN;
     my $self = Devel::Trepan::IO::InputBase->new($inp, $opts);
-    if ($opts->{readline} && $HAVE_GNU_READLINE) {
+
+    if ($opts->{readline} && GLOBAL_have_gnu_readline()) {
 	$self->{readline} = Term::ReadLine->new('trepanpl');
 	$self->{gnu_readline} = 1;
     } else {
@@ -124,7 +138,7 @@ unless (caller) {
     require Data::Dumper; import Data::Dumper; 
     print Dumper($in), "\n";
     printf "Is interactive: %s\n", ($in->is_interactive ? "yes" : "no");
-    printf "Have GNU Readline: %s\n", ($HAVE_GNU_READLINE ? "yes" : "no");
+    printf "Have GNU Readline: %s\n", (GLOBAL_have_gnu_readline() ? "yes" : "no");
     if (scalar(@ARGV) > 0) {
 	print "Enter some text: ";
 	my $line = $in->readline;

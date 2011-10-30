@@ -19,6 +19,8 @@ use vars qw(@EXPORT @ISA);
 use constant DEFAULT_OPTS => {
     abort_on_error => 1,
     confirm_val    => 0,
+    # TODO : maybe add readline => 0, here.
+    readline => 0,
     verbose        => 0
 };
   
